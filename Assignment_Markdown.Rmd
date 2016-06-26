@@ -1,0 +1,116 @@
+---
+title: "Machine Learning Assignment"
+author: "Saurabh Saxena"
+date: "June 26, 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Model Building & Validation Code
+
+
+```{r cars}
+
+setwd("C:\\Users\\Saurabh\\Desktop\\Assignment")
+library(ggplot2)
+library(caret)
+set.seed(9087)
+
+#Data input & EDA
+temp_raw <- read.csv("pml-training.csv")
+testing_raw <- read.csv("pml-testing.csv")
+
+temp <- temp_raw[ ,c(1,2,3,4,5,6,7,8,9,10,36,37,38,39,40,41,42,43,44,45,46,47,48,59,60,61,62,63,64,65,66,67,83,84,85,101,112,113,114,115,116,117,118,119,120,121,122,123,139,150,151,152,153,154,155,156,157,158,159)]
+
+testing <- testing_raw[ ,c(1,2,3,4,5,6,7,8,9,10,36,37,38,39,40,41,42,43,44,45,46,47,48,59,60,61,62,63,64,65,66,67,83,84,85,101,112,113,114,115,116,117,118,119,120,121,122,123,139,150,151,152,153,154,155,156,157,158,159)]
+
+intrain <- createDataPartition(temp$classe, p = 0.7, list = F)
+
+training <- temp[intrain, ]
+validation <- temp[-intrain, ]
+
+#Variable Reduction
+str(testing_raw)
+summary(training)
+
+#Model Building
+modelFit <- train(classe ~ user_name + roll_belt + yaw_belt + total_accel_belt + gyros_arm_z + accel_arm_x + accel_arm_z + magnet_arm_x + magnet_arm_y + magnet_arm_z + accel_dumbbell_x + magnet_dumbbell_y + magnet_dumbbell_z + pitch_forearm + magnet_forearm_x, method = "gbm", data = training)
+
+confusionMatrix(na.omit(training$classe), predict(modelFit, newdata = na.omit(training))) # Model Accuracy ~ 92.35%
+
+#Cross Validation - 10 Folds CV
+folds <- createFolds(y = training$classe, k = 10, list = TRUE, returnTrain = T)
+sapply(folds,length)
+
+folds2 <- createFolds(y = training$classe, k = 10, list = TRUE, returnTrain = F)
+sapply(folds2,length)
+
+#Repeating the below process 10 times with list indices 1 to 10
+Fold_inBuild <- training[folds[[1]], ]
+Fold_Training <- Fold_inBuild[-folds2[[1]],]
+Fold_Validation <- Fold_inBuild[folds2[[1]],]
+
+modelFit <- train(classe ~ user_name + roll_belt + yaw_belt + total_accel_belt + gyros_arm_z + accel_arm_x + accel_arm_z + magnet_arm_x + magnet_arm_y + magnet_arm_z + accel_dumbbell_x + magnet_dumbbell_y + magnet_dumbbell_z + pitch_forearm + magnet_forearm_x, method = "gbm", data = Fold_Training)
+
+confusionMatrix(na.omit(Fold_Validation$classe), predict(modelFit, newdata = na.omit(Fold_Validation)))
+
+# For predicting the problem cases
+result <- data.frame(problem_id = na.omit(testing$problem_id), classe_pred = predict(modelFit, newdata = na.omit(testing)))
+
+```
+
+## Box Plots
+
+Following are the boxplots of the model predictors:
+
+```{r pressure, echo=FALSE}
+#roll_belt
+qplot(classe, training[,c("roll_belt")], data = training, fill = classe, geom = c("boxplot"))
+
+#yaw_belt
+qplot(classe, training[,c("yaw_belt")], data = training, fill = classe, geom = c("boxplot"))
+
+#total_accel_belt
+qplot(classe, training[,c("total_accel_belt")], data = training, fill = classe, geom = c("boxplot"))
+
+#gyro_arm_z
+qplot(classe, training[,c("gyro_arm_z")], data = training, fill = classe, geom = c("boxplot"))
+
+#accel_arm_x
+qplot(classe, training[,c("accel_arm_x")], data = training, fill = classe, geom = c("boxplot"))
+
+#accel_arm_z
+qplot(classe, training[,c("accel_arm_z")], data = training, fill = classe, geom = c("boxplot"))
+
+#magnet_arm_x
+qplot(classe, training[,c("magnet_arm_x")], data = training, fill = classe, geom = c("boxplot"))
+
+#magnet_arm_y
+qplot(classe, training[,c("magnet_arm_y")], data = training, fill = classe, geom = c("boxplot"))
+
+#magnet_arm_z
+qplot(classe, training[,c("magnet_arm_z")], data = training, fill = classe, geom = c("boxplot"))
+
+#accel_dumbbell_x
+qplot(classe, training[,c("accel_dumbbell_x")], data = training, fill = classe, geom = c("boxplot"))
+
+#magnet_dumbbell_x
+qplot(classe, training[,c("magnet_dumbbell_x")], data = training, fill = classe, geom = c("boxplot"))
+
+#magnet_dumbbell_y
+qplot(classe, training[,c("magnet_dumbbell_y")], data = training, fill = classe, geom = c("boxplot"))
+
+#magnet_dumbbell_z
+qplot(classe, training[,c("magnet_dumbbell_z")], data = training, fill = classe, geom = c("boxplot"))
+
+#pitch_forearm
+qplot(classe, training[,c("pitch_forearm")], data = training, fill = classe, geom = c("boxplot"))
+
+#magnet_forearm_x
+qplot(classe, training[,c("magnet_forearm_x")], data = training, fill = classe, geom = c("boxplot"))
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.

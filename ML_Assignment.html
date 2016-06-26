@@ -1,0 +1,32 @@
+<p><b>Objective: </b> To create a classification model with minimum accuracy of 80% while predicting for the <i>'Classe'</i> response using predictors in the data</p>
+
+<p><b>EDA & Variable Reduction: </b> As the classification problem was non-linear, the best suited method was GBM, so it was critical to reduce as many unecessary
+predictors as possible<br>to reduce overfitting of final model. The following two steps were followed for this:<br><br>
+[1] All the variables in the test data which were N/A or blank for all the 20 cases, were removed from the training data as well<br><i>(Reason: These values won't be 
+present at the time of prediction hence there is no requirement for them to be in the training data)</i><br><br>
+[2] With the remaining 58 variables, boxplots were constructed to observe if the median & other quantiles have a monotonic trend with the Classe categories<br><i>
+(Reason: Since the 'Classe' variable is ordinal in nature, it's good predictor should have a monotonic relationship with it)</i></p>
+
+<p><b>Model Building: </b>For high accuracy <i>'gbm'</i> method was used to train the model with 70:30 Training:Validation split, a finalized list of 16 predictors are stated below:<br><br>
+[1] user_name<br>
+[2] roll_belt<br>
+[3] yaw_belt<br>
+[4] total_accel_belt<br>
+[5] gyros_arm_z<br>
+[6] accel_arm_x<br>
+[7] accel_arm_z<br>
+[8] magnet_arm_x<br>
+[9] magnet_arm_y<br>
+[10] magnet_arm_z<br>
+[11] accel_dumbbell_x<br>
+[12] magnet_dumbbell_x<br>
+[13] magnet_dumbbell_y<br>
+[14] magnet_dumbbell_z<br>
+[15] pitch_forearm<br>
+[16] magnet_forearm_x<br><br>
+The model accuracy on validation data set was observed to be: 92.35% <br>
+The classification error in-sample was observed to be: 5.71% <br>
+The accuracy at 95% CI out of sample was observed to be: (91.64%, 93.02%)<br>
+Kappa value was observed to be: 90.32% <br></p>
+<b>Cross Validation: </b>K-folds validation with k = 10 was used as the validation scheme and the accurracy observed on each fold was in a range (85%,95%)</p>
+<p><b>Result: </b>Predicting with this version of the model yielded 18 out of 20 correct predictions on the test dataset, yielding an accuracy of ~90% on the test set</p>
